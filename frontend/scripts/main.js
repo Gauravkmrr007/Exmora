@@ -23,37 +23,37 @@ const mainApp = document.getElementById('main-app');
 const legalCheckbox = document.getElementById('legal-checkbox');
 const controlsRow = document.getElementById('controls-row');
 
-// Helper to disable/enable input section
+//disable/enable input section
 function updateInputState(isEnabled) {
     queryInput.disabled = !isEnabled;
-    // We handle buttons separately now due to stop logic
+    // handling buttons separately for to stop logic
     if (isEnabled) {
         askBtn.classList.remove('hidden');
         askBtn.disabled = false;
         if (stopBtn) stopBtn.classList.add('hidden');
     } else {
-        // Disabled state generally means "loading" or "locked"
+        // disabled for loading or locked states
         // But for "loading", we want STOP button.
         // For "locked" (rate limit), we want DISABLED send button.
-        // This helper is a bit too generic now, so we'll be careful.
+        // helper is pretty generic, being careful here
         askBtn.disabled = true;
     }
     if (micBtn) micBtn.disabled = !isEnabled;
 }
 
-// Stop Button Logic
+// stop button logic
 if (stopBtn) {
     stopBtn.addEventListener('click', () => {
         let stopped = false;
 
-        // 1. Stop Fetching
+        // stop the fetch request
         if (currentController) {
             currentController.abort();
             currentController = null;
             stopped = true;
         }
 
-        // 2. Stop Typing
+        // kill the typewriter effect
         if (typingTimeout) {
             clearTimeout(typingTimeout);
             typingTimeout = null;
@@ -61,9 +61,9 @@ if (stopBtn) {
         }
 
         if (stopped) {
-            // UI Feedback
+            // update the ui
             removeMessage(document.querySelector('.skeleton-loader')?.id);
-            // We do NOT remove the partial message if it exists, matching standard AI behavior
+            // not removing partial message if it exists already
 
             updateInputState(true);
             stopBtn.classList.add('hidden');
@@ -72,7 +72,7 @@ if (stopBtn) {
     });
 }
 
-// Rate Limit & Captcha Elements
+// rate limit & captcha stuff
 const rateLimitModal = document.getElementById('rate-limit-modal');
 const rateLimitTimer = document.getElementById('rate-limit-timer');
 const captchaSection = document.getElementById('captcha-section');
@@ -84,25 +84,25 @@ const captchaError = document.getElementById('captcha-error');
 let countdownInterval;
 let currentCaptchaAnswer = 0;
 
-// Check Rate Limit on Load
+// check rate limit when page loads
 // Rate Limit check moved to Get Started or specific triggers
 // const savedEndTime = localStorage.getItem('rateLimitEndTime');
 // if (savedEndTime) { ... }
 
-// State
+// state management
 let session_id = localStorage.getItem('ai_session_id') || 'session_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('ai_session_id', session_id);
 
-let currentController = null; // To manage cancellation
-let typingTimeout = null; // To manage typewriter cancellation
+let currentController = null; // for cancelation
+let typingTimeout = null; // for typewriter stop
 
-// Define welcomeInstruction but re-query it later to be safe
+// Define welcomeInstruction
 let welcomeInstruction = document.getElementById('welcome-instruction');
 
 // const API_BASE = 'http://127.0.0.1:8000';
 const API_BASE = 'https://exmora-gr7p.onrender.com';
 
-// Persistence logic
+// save/load chat for persistence
 function saveChat() {
     const history = chatHistory.innerHTML;
     localStorage.setItem(`history_${session_id}`, history);
@@ -112,7 +112,7 @@ function loadChat() {
     const saved = localStorage.getItem(`history_${session_id}`);
     if (saved) {
         chatHistory.innerHTML = saved;
-        // Re-render math and re-attach quiz listeners if any
+        // fix math and quiz buttons after loading
         chatHistory.querySelectorAll('.message').forEach(m => renderMath(m));
         welcomeInstruction = document.getElementById('welcome-instruction');
     }
@@ -139,37 +139,36 @@ if (getStartedBtn) {
         });
     }
 
-    // Fade the user from the landing page into the main app.
+    // transition from landing to app
     getStartedBtn.addEventListener('click', () => {
-        // Safety check to ensure the checkbox is actually checked
+        // check if user agreed to terms
         if (legalCheckbox && !legalCheckbox.checked) return;
 
         landingPage.classList.add('hidden');
         mainApp.classList.remove('hidden');
 
-        // Hide background orbs and footer for cleaner chat interface
+        // hide extra fluff for a clean chat view
         document.querySelectorAll('.bg-orb').forEach(orb => orb.style.display = 'none');
         const footer = document.querySelector('.app-footer');
         if (footer) footer.style.display = 'none';
 
-        // Check for existing Rate Limit
+        // check if user is rate limited
         const savedEndTime = localStorage.getItem('rateLimitEndTime');
         if (savedEndTime) {
             const remainingTime = parseInt(savedEndTime) - Date.now();
-            // If time remains OR time has passed (meaning captcha still needed)
-            // we show the modal. We only clear it if captcha is solved.
+            // if time remains or captcha still needed, show modal
             showRateLimitModal(parseInt(savedEndTime));
         }
     });
 }
 
-// Auto-resize textarea
+// auto-resize the input box
 queryInput.addEventListener('input', () => {
     queryInput.style.height = '36px';
     queryInput.style.height = (queryInput.scrollHeight) + 'px';
 });
 
-// Trigger file input on click
+// open file dialog on icon click
 uploadTrigger.addEventListener('click', (e) => {
     if (e.target !== fileInput) {
         fileInput.click();
@@ -184,20 +183,19 @@ if (welcomeUploadBtn) {
     });
 }
 
-// File Upload Logic
+// file upload logic
 fileInput.addEventListener('change', async () => {
     const file = fileInput.files[0];
     if (!file) return;
 
-    // 2MB Limit
+    // 2MB limit check
     if (file.size > 2 * 1024 * 1024) {
         alert("File too large! Max 2MB.");
         fileInput.value = '';
         return;
     }
 
-    // UI State: Uploading
-    // Toggle icon/loader inside button
+    // show loading state
     const btnIcon = uploadTrigger.querySelector('svg');
     if (btnIcon) btnIcon.classList.add('hidden');
     loader.classList.remove('hidden');
@@ -218,15 +216,15 @@ fileInput.addEventListener('change', async () => {
             loader.classList.add('hidden');
             alert(data.error);
         } else {
-            // Success State
+            // success state
             loader.classList.add('hidden');
             if (btnIcon) btnIcon.classList.remove('hidden');
 
-            // Show Controls Row
+            // show the control rows
             const controlsRow = document.getElementById('controls-row');
             if (controlsRow) controlsRow.classList.remove('hidden');
 
-            // Update welcome instruction
+            // update labels
             welcomeInstruction = document.getElementById('welcome-instruction'); // Re-query
 
             if (welcomeInstruction) {
@@ -234,18 +232,18 @@ fileInput.addEventListener('change', async () => {
                 welcomeInstruction.classList.add('text-success');
             }
 
-            // Hide welcome upload button after successful upload
+            // hide the upload button after success
             if (welcomeUploadBtn) {
                 welcomeUploadBtn.style.display = 'none';
             }
 
-            // Show Doc Info & Quiz Button
+            // enable quiz/summary buttons
             docNameEl.textContent = file.name;
             docInfoBadge.classList.remove('hidden');
             quizBtn.classList.remove('hidden');
             summarizeBtn.classList.remove('hidden');
 
-            // Enable inputs
+            // allow typing now
             updateInputState(true);
         }
     } catch (err) {
@@ -256,8 +254,7 @@ fileInput.addEventListener('change', async () => {
     }
 });
 
-// Ask Question Logic
-// Ask Question Logic
+// handle the send button click
 askBtn.addEventListener('click', (e) => {
     e.preventDefault();
     handleAsk();
@@ -269,7 +266,7 @@ queryInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Quiz Mode Logic
+// quiz mode trigger
 quizBtn.addEventListener('click', () => {
     queryInput.value = "Generate a 5-question interactive quiz based on the key concepts of this document.";
     handleAsk();
@@ -280,7 +277,7 @@ summarizeBtn.addEventListener('click', () => {
     handleAsk();
 });
 
-// Voice Logic
+// voice to text logic
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
@@ -309,7 +306,7 @@ if (SpeechRecognition) {
     micBtn.style.display = 'none';
 }
 
-// Export Logic
+// export the chat history
 exportBtn.addEventListener('click', () => {
     const texts = Array.from(chatHistory.querySelectorAll('.message'))
         .map(m => `[${m.classList.contains('user-message') ? 'USER' : 'AI'}]: ${m.innerText.trim()}`)
@@ -320,9 +317,9 @@ exportBtn.addEventListener('click', () => {
     a.href = url; a.download = 'study_chat.txt'; a.click();
 });
 
-// Remove Document Logic
+// remove the current pdf
 removeDocBtn.addEventListener('click', async () => {
-    // 1. Reset Backend Document Text (Optional but recommended)
+    // ask the backend to forget the doc
     const formData = new FormData();
     formData.append('session_id', session_id);
     try {
@@ -330,10 +327,9 @@ removeDocBtn.addEventListener('click', async () => {
             method: 'POST',
             body: formData
         });
-        // Note: Full restart clears history, but for "wrong pdf" case, 
-        // user might want to keep chat? 
-        // Actually the prompt says "delete that and when the user click on that x button the uploaded button should now change to upload"
-        // I will just reset the document related UI
+        // restart clears things up, user might want to keep chat tho
+        // prompt says swap to upload button when removed
+        // just resetting doc related ui for now
 
         fileInput.value = '';
         // Reset Button State
@@ -352,7 +348,7 @@ removeDocBtn.addEventListener('click', async () => {
         // Disable inputs
         updateInputState(false);
 
-        // Update welcome message if still there
+        // update instructions if visible
         const welcome = document.getElementById('welcome-instruction');
         if (welcome) {
             welcome.textContent = 'Document removed. Please upload another PDF.';
@@ -363,7 +359,7 @@ removeDocBtn.addEventListener('click', async () => {
     }
 });
 
-// New Chat Reset
+// start a fresh chat session
 newChatBtn.addEventListener('click', () => {
     modalOverlay.classList.remove('hidden');
 });
@@ -377,7 +373,7 @@ modalConfirm.addEventListener('click', () => {
     resetChat();
 });
 
-// Close modal on overlay click (optional but nice)
+// close modal if user clicks outside
 modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) {
         modalOverlay.classList.add('hidden');
@@ -389,13 +385,13 @@ async function resetChat() {
     formData.append('session_id', session_id);
 
     try {
-        // 1. Reset Backend
+        // clear the backend side
         await fetch(`${API_BASE}/restart`, {
             method: 'POST',
             body: formData
         });
 
-        // 2. Clear UI Chat History
+        // clear the messages on screen
         chatHistory.innerHTML = `
             <div class="welcome-message">
                 <h2>Hello! 👋</h2>
@@ -403,17 +399,17 @@ async function resetChat() {
             </div>
         `;
 
-        // 3. Reset Upload Button
+        // reset upload button state
         fileInput.value = '';
         const btnIcon = uploadTrigger.querySelector('svg');
         if (btnIcon) btnIcon.classList.remove('hidden');
         loader.classList.add('hidden');
 
-        // Hide Controls Row
+        // hide the extra buttons
         const controlsRow = document.getElementById('controls-row');
         if (controlsRow) controlsRow.classList.add('hidden');
 
-        // 4. Hide Doc Info & Quiz Btn
+        // remove doc info badge
         docInfoBadge.classList.add('hidden');
         quizBtn.classList.add('hidden');
         summarizeBtn.classList.add('hidden');
@@ -421,13 +417,13 @@ async function resetChat() {
         // Disable inputs
         updateInputState(false);
 
-        // 5. Update welcome instruction ref
+        // refresh the instruction ref
         welcomeInstruction = document.getElementById('welcome-instruction');
 
-        // 6. Clear persistence
+        // wipe local storage data
         localStorage.removeItem(`history_${session_id}`);
 
-        // 7. Cycle Session ID for true fresh start
+        // new session id for a fresh start
         session_id = 'session_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('ai_session_id', session_id);
 
@@ -441,22 +437,22 @@ async function handleAsk() {
     const question = queryInput.value.trim();
     if (!question) return;
 
-    // Add User Message
+    // show user prompt in chat
     addMessage('user', question);
     queryInput.value = '';
-    queryInput.style.height = '36px'; // Reset height
+    queryInput.style.height = '36px'; // reset height
 
-    // Add Typing Indicator
+    // show typing indicator while ai thinks
     const typingId = addTypingIndicator();
 
-    // 1. Restrict Input during AI generation
-    // Manual toggle for button swap
+    // lock inputs while ai generates
+    // swap buttons for stop logic
     queryInput.disabled = true;
     askBtn.classList.add('hidden');
     stopBtn.classList.remove('hidden');
     if (micBtn) micBtn.disabled = true;
 
-    // Create new abort controller
+    // handle cancellation with abort controller
     currentController = new AbortController();
     const signal = currentController.signal;
 
@@ -472,9 +468,9 @@ async function handleAsk() {
         });
 
         if (res.status === 429) {
-            // Rate Limit Hit!
+            // rate limit hit logic
             removeMessage(typingId);
-            const endTime = Date.now() + 1 * 60 * 1000; // 1 Minute from now
+            const endTime = Date.now() + 1 * 60 * 1000; // 1 min timer from now
             localStorage.setItem('rateLimitEndTime', endTime);
 
             addMessage('ai', '⚠️ You have reached your limit of asking questions. Please wait for 1 minute to continue.');
@@ -490,21 +486,21 @@ async function handleAsk() {
 
         const data = await res.json();
 
-        // Remove typing indicator
+        // kill the typing loader
         removeMessage(typingId);
 
         if (data.error) {
             addMessage('ai', `Error: ${data.error}`);
             updateInputState(true);
-            // Revert buttons on error
+            // fix buttons on error too
             stopBtn.classList.add('hidden');
             askBtn.classList.remove('hidden');
         } else {
-            // Success: Start typing
-            // Do NOT hide stop button yet. It remains visible during typing.
+            // success, start the typewriter
+            // keeping stop btn visible during typing
 
             typeWriterEffect(data.answer, () => {
-                // Completed normally
+                // switch buttons back after finishing
                 updateInputState(true);
                 stopBtn.classList.add('hidden');
                 askBtn.classList.remove('hidden');
@@ -514,7 +510,7 @@ async function handleAsk() {
     } catch (err) {
         if (err.name === 'AbortError') {
             console.log("Generation stopped by user.");
-            // UI was already handled in stop click listener, but extra safety:
+            // ui handles this in stop btn listener anyway
             removeMessage(typingId);
             updateInputState(true);
         } else {
@@ -528,7 +524,7 @@ async function handleAsk() {
     }
 }
 
-// UI Helpers
+// ui helper functions
 function addMessage(role, text) {
     const div = document.createElement('div');
     div.className = `message ${role}-message`;
@@ -556,7 +552,7 @@ function renderMath(element) {
     }
 }
 
-// Interactive Quiz Parser
+// interactive quiz parser
 function handleInteractiveQuiz(text, container) {
     const quizMatch = text.match(/\[QUIZ_JSON\]([\s\S]*?)\[\/QUIZ_JSON\]/);
     if (!quizMatch) return;
@@ -602,7 +598,7 @@ function handleInteractiveQuiz(text, container) {
                         feedback.style.color = "#00ff88";
                     } else {
                         btn.classList.add('wrong');
-                        // Find the correct option button to highlight it
+                        // highlight correct answer on mistake
                         options.forEach(b => {
                             if (b.getAttribute('data-correct') === 'true') b.classList.add('correct');
                         });
@@ -611,7 +607,7 @@ function handleInteractiveQuiz(text, container) {
                     }
                     feedback.classList.add('show');
 
-                    // Check if all answered
+                    // quiz finished logic
                     if (answeredQuestions === totalQuestions) {
                         setTimeout(() => {
                             const resultDiv = document.createElement('div');
@@ -623,7 +619,7 @@ function handleInteractiveQuiz(text, container) {
                             `;
                             quizDiv.appendChild(resultDiv);
                             scrollToBottom();
-                            saveChat(); // Save final state
+                            saveChat(); // save the result state
                         }, 800);
                     } else {
                         saveChat();
@@ -670,14 +666,14 @@ function typeWriterEffect(text, onComplete) {
     chatHistory.appendChild(div);
 
     let i = 0;
-    const speed = 10; // Faster speed for markdown
+    const speed = 10; // typewriter speed
     let currentText = "";
 
     function type() {
         if (i < text.length) {
             currentText += text.charAt(i);
 
-            // Cleanup: Don't show the raw JSON block in the UI
+            // hide raw quiz json from the chat bubble
             let cleanDisplay = currentText.replace(/\[QUIZ_JSON\][\s\S]*$/, "");
             div.innerHTML = marked.parse(cleanDisplay);
 
@@ -695,20 +691,18 @@ function typeWriterEffect(text, onComplete) {
     type();
 }
 
-// ---------------------------------------------------------
-// Rate Limiting & CAPTCHA Logic
-// ---------------------------------------------------------
+// rate limit & captcha logic
 
 function showRateLimitModal(endTime) {
     if (rateLimitModal.classList.contains('hidden')) {
         rateLimitModal.classList.remove('hidden');
     }
-    captchaSection.classList.add('hidden'); // Ensure hidden initially
+    captchaSection.classList.add('hidden'); // hidden initially
 
-    // Disable inputs behind modal purely for safety
+    // lock background inputs for safety
     updateInputState(false);
 
-    // Clear any existing interval
+    // kill old timers
     if (countdownInterval) clearInterval(countdownInterval);
 
     // Initial check
@@ -727,7 +721,7 @@ function showRateLimitModal(endTime) {
             if (diff <= 0) {
                 clearInterval(countdownInterval);
                 rateLimitTimer.textContent = "00:00";
-                // Show Captcha
+                // show the captcha after timer ends
                 showCaptcha();
             } else {
                 updateTimerDisplay(endTime);
@@ -747,7 +741,7 @@ function updateTimerDisplay(endTime) {
 }
 
 function showCaptcha() {
-    // Generate simple math problem
+    // simple math problem for human check
     const a = Math.floor(Math.random() * 10) + 1;
     const b = Math.floor(Math.random() * 10) + 1;
     currentCaptchaAnswer = a + b;

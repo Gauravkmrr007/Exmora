@@ -189,8 +189,8 @@ fileInput.addEventListener('change', async () => {
     if (!file) return;
 
     // 2MB limit check
-    if (file.size > 2 * 1024 * 1024) {
-        alert("File too large! Max 2MB.");
+    if (file.size > 10 * 1024 * 1024) {
+        alert("File too large! Max 10 MB.");
         fileInput.value = '';
         return;
     }

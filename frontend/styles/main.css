@@ -1,7 +1,5 @@
 /* =========================================================
    1. GLOBAL VARIABLES & RESET
-   These are our 'Design Tokens'. We define them here to keep the 
-   look and feel consistent throughout the entire app.
    ========================================================= */
 :root {
     --primary-color: #4a90e2;
@@ -48,7 +46,7 @@
     background: rgba(255, 255, 255, 0.4);
 }
 
-/* Basic Reset: Ensuring every browser starts from the same point */
+/* Basic Reset: fow browser starts from the same point */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -65,8 +63,7 @@ body {
 
 /* =========================================================
    2. BODY & BACKGROUND ANIMATION
-   Setting up the 'Glassmorphism' vibe with an animated gradient
-   and those cool floating background orbs.
+   Setting up the 'Glassmorphism;.
    ========================================================= */
 body {
     background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e);
@@ -75,14 +72,13 @@ body {
     color: var(--text);
     height: 100vh;
     height: 100dvh;
-    /* Better support for mobile browser address bars */
     overflow-x: hidden;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 
-/* The smooth moving gradient in the background */
+/* smooth moving gradient in the background */
 @keyframes gradientBG {
     0% {
         background-position: 0% 50%;
@@ -141,7 +137,6 @@ body {
 
 /* =========================================================
    3. MAIN APP CONTAINER
-   Fullscreen layout like ChatGPT/Gemini for better content visibility.
    ========================================================= */
 .app-container {
     position: relative;

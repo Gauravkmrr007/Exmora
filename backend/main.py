@@ -55,6 +55,14 @@ def check_rate_limit(request: Request):
     Checks if the client IP has exceeded the rate limit.
     """
     client_ip = request.client.host
+    # Check for X-Forwarded-For header (common in proxies/Render)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # The first IP in the list is the original client
+        client_ip = forwarded_for.split(",")[0].strip()
+    elif request.headers.get("X-Real-IP"):
+         client_ip = request.headers.get("X-Real-IP")
+
     current_time = time.time()
     
     if client_ip not in RATE_LIMITS:

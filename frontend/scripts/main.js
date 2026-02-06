@@ -100,7 +100,7 @@ let typingTimeout = null; // To manage typewriter cancellation
 let welcomeInstruction = document.getElementById('welcome-instruction');
 
 // const API_BASE = 'http://127.0.0.1:8000';
-const API_BASE = 'https://exmora.onrender.com';
+const API_BASE = 'https://exmora-gr7p.onrender.com';
 
 // Persistence logic
 function saveChat() {

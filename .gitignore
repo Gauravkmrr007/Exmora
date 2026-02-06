@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+backend/venv/
+backend/.env
+
+# OS
+.DS_Store
+Thumbs.db
+.fseventsd
+
+# Editor
+.vscode/
+.idea/
+.history/

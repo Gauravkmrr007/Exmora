@@ -729,34 +729,54 @@ textarea {
 
 @media (max-width: 600px) {
     .doc-name {
-        max-width: 120px;
+        max-width: 100px;
         /* Smaller max width on mobile */
+        font-size: 0.85rem;
     }
 
     .controls-row {
         flex-wrap: nowrap;
-        /* Force single line */
         gap: 8px;
-        /* Tighter gap */
     }
 
     .doc-info.mini {
         max-width: 120px;
-        /* Force truncation width */
         flex: 1;
-        /* Allow it to shrink/grow */
         min-width: 0;
-        /* Crucial for flex child truncation */
-    }
-
-    .doc-name {
-        width: 100%;
-        /* Fill container */
+        padding: 0 12px;
+        font-size: 0.8rem;
     }
 
     .action-buttons {
+        gap: 6px;
         flex-shrink: 0;
-        /* Don't shrink buttons */
+    }
+
+    .action-btn {
+        padding: 0 12px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 400px) {
+    .doc-name {
+        max-width: 70px;
+    }
+
+    .doc-info.mini {
+        max-width: 100px;
+        padding: 0 8px;
+    }
+
+    .action-btn {
+        padding: 0 8px;
+        font-size: 0.75rem;
+    }
+
+    .action-buttons {
+        gap: 4px;
     }
 }
 

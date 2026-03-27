@@ -15,8 +15,8 @@
 
 ## 📸 Screenshots
 
-### 💬 Chat UI
-![Chat UI](![image](https://github.com/user-attachments/assets/3c3f6206-e71f-42a3-bdef-7e22feaea456)
+### 💬 Landing Page UI
+![Landing page](![image](https://github.com/user-attachments/assets/3c3f6206-e71f-42a3-bdef-7e22feaea456)
 )
 
 ### 📄 Login
